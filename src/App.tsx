@@ -11,23 +11,52 @@ import {
   MenuItem,
   TextField,
   Toolbar,
+  Card,
 } from "@mui/material";
 import IconButton from '@mui/material/IconButton';
+import DoneAllIcon from '@mui/icons-material/DoneAll';
 import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircle from '@mui/icons-material/AccountCircle';
+
+interface MyListItemProps {
+  text: string,
+  padded: boolean,
+}
+
+interface TodoItemModel {
+  title: string
+  doneStatus: boolean
+}
 
 
 function App() {
   const [value, setValue] = useState<string>('')
-  const [items, setItems] = useState<string[]>([])
+  const [items, setItems] = useState<TodoItemModel[]>([])
 
-  const onCLikMyButton = () => {
-    setItems([value, ...items])
-    setValue('')
+  const onChangeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(event.target.value)
   }
 
-  const onChangeInput = (element: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(element.target.value)
+  const MyListItemText = (props: MyListItemProps) => {
+    return (
+        <div className={`${props.padded ? "padded" : ""}`}>
+          { props.text }
+        </div>
+    )
+  }
+
+  const renderItem = (item: TodoItemModel, index: number) => (
+      <ListItem key={`${index}-${value}`}>
+        <Card variant="outlined" sx={{ width: 1 }} style={{background: item.doneStatus ? 'green' : 'red'}}>
+          <MyListItemText text={item.title} padded={true} />
+        </Card>
+      </ListItem>
+  )
+
+  const onCLikMyButton = () => {
+    const newItem = { title: value, doneStatus: false }
+    setItems([newItem, ...items])
+    setValue('')
   }
 
   return (
@@ -78,21 +107,20 @@ function App() {
         <Container sx={{ mt: 4, mb: 4 }} >
           <Grid container spacing={2}>
             <Grid item xs={8}>
-              <TextField value={value} onChange={onChangeInput} label="Outlined secondary" color="secondary" focused />
+              <TextField
+                value={value}
+                onChange={onChangeInput}
+                label="Outlined secondary"
+                color="secondary"
+                focused
+              />
             </Grid>
             <Grid  item xs={4}>
               <Button onClick={onCLikMyButton} variant="contained">Добавить</Button>
             </Grid>
           </Grid>
-          <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
-            {items.map((value, index) => (
-                <ListItem
-                    key={`${index}-${value}`}
-                    disableGutters
-                >
-                  <ListItemText primary={value} />
-                </ListItem>
-            ))}
+          <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
+            {items.map(renderItem)}
           </List>
         </Container>
       </Box>
@@ -101,7 +129,4 @@ function App() {
 }
 
 export default App;
-function setItems(arg0: number[]) {
-    throw new Error('Function not implemented.');
-}
 
